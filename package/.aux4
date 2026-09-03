@@ -1,6 +1,6 @@
 {
   "scope": "aux4",
-  "name": "x-oauth-app",
+  "name": "oauth-app-x",
   "version": "0.0.2",
   "description": "Deploy your own X (Twitter) OAuth service in one click: it holds your X client id/secret so your CLI tools never have to.",
   "license": "MIT",
@@ -28,9 +28,9 @@
       "name": "main",
       "commands": [
         {
-          "name": "x-oauth-app",
+          "name": "oauth-app-x",
           "execute": [
-            "profile:x-oauth-app"
+            "profile:oauth-app-x"
           ],
           "help": {
             "text": "X OAuth app commands"
@@ -39,7 +39,7 @@
       ]
     },
     {
-      "name": "x-oauth-app",
+      "name": "oauth-app-x",
       "commands": [
         {
           "name": "health",

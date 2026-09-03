@@ -1,6 +1,6 @@
 #### Description
 
-The `x-oauth-app` command groups the subcommands of a deployable X (Twitter) OAuth service. The service holds your X application credentials (client id and, for a confidential Web App, secret) so that thin CLI clients never have to handle them.
+The `oauth-app-x` command groups the subcommands of a deployable X (Twitter) OAuth service. The service holds your X application credentials (client id and, for a confidential Web App, secret) so that thin CLI clients never have to handle them.
 
 It is a thin wrapper over `aux4/oauth`, pre-wired for X (x.com / api.x.com endpoints, space-separated scopes, HTTP Basic auth for confidential clients), and is designed to run as an `api`-type machine on aux4.cloud. Its routes are served behind an API Gateway:
 
@@ -21,13 +21,13 @@ Subcommands:
 #### Usage
 
 ```bash
-aux4 x-oauth-app <subcommand>
+aux4 oauth-app-x <subcommand>
 ```
 
 #### Example
 
 ```bash
-aux4 x-oauth-app authorize-url --params '{"provider":"x"}' --query '{"redirectUri":"http://127.0.0.1:9876/callback"}'
+aux4 oauth-app-x authorize-url --params '{"provider":"x"}' --query '{"redirectUri":"http://127.0.0.1:9876/callback"}'
 ```
 
 Served over HTTP as:

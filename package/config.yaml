@@ -10,10 +10,10 @@
 config:
   api:
     "GET /health":
-      command: aux4 x-oauth-app health
+      command: aux4 oauth-app-x health
     "GET /{provider}/authorize-url":
-      command: aux4 x-oauth-app authorize-url
+      command: aux4 oauth-app-x authorize-url
     "POST /{provider}/exchange":
-      command: aux4 x-oauth-app exchange
+      command: aux4 oauth-app-x exchange
     "POST /{provider}/refresh":
-      command: aux4 x-oauth-app refresh
+      command: aux4 oauth-app-x refresh

@@ -1,4 +1,4 @@
-# aux4/x-oauth-app
+# aux4/oauth-app-x
 
 Deploy your **own X (Twitter) OAuth service** in one click. It holds your X OAuth client id and secret server-side and does the authorization-URL build, the code exchange, and the token refresh on behalf of your CLI tools — so those tools **never handle a client secret**, and every user authenticates under **your** X app, quota, and consent screen.
 
@@ -6,7 +6,7 @@ It is a thin HTTP wrapper over [`aux4/oauth`](https://hub.aux4.io/r/public/packa
 
 ## Quick start
 
-1. **Deploy it.** From the [hub package page](https://hub.aux4.io/r/public/packages/aux4/x-oauth-app), click **Deploy to cloud** (or `aux4 aux4 cloud deploy x-oauth-app --package aux4/x-oauth-app --api true`). You get a URL like `https://<your-scope>.on.aux4.cloud/x-oauth-app`.
+1. **Deploy it.** From the [hub package page](https://hub.aux4.io/r/public/packages/aux4/oauth-app-x), click **Deploy to cloud** (or `aux4 aux4 cloud deploy oauth-app-x --package aux4/oauth-app-x --api true`). You get a URL like `https://<your-scope>.on.aux4.cloud/oauth-app-x`.
 
 2. **Create your X app.** In the [X developer portal](https://developer.x.com/), create an OAuth 2.0 app. Two client types work:
    - **Web App (confidential)** — has a **client secret**; the app authenticates to X's token endpoint with HTTP Basic auth. Set both env vars below.
@@ -17,7 +17,7 @@ It is a thin HTTP wrapper over [`aux4/oauth`](https://hub.aux4.io/r/public/packa
 3. **Add your credentials.**
 
    ```bash
-   aux4 aux4 cloud x-oauth-app env set X_CLIENT_ID=... X_CLIENT_SECRET=...   # secret only for a Web App
+   aux4 aux4 cloud oauth-app-x env set X_CLIENT_ID=... X_CLIENT_SECRET=...   # secret only for a Web App
    ```
 
    Values are encrypted at rest per scope and applied to the live machine immediately.
@@ -25,7 +25,7 @@ It is a thin HTTP wrapper over [`aux4/oauth`](https://hub.aux4.io/r/public/packa
 4. **Point your CLI at it.** A client asks the app for an authorization URL, sends the user through X's consent screen on a local loopback, and exchanges the code — for example:
 
    ```bash
-   export X_AUTH_BROKER="https://<your-scope>.on.aux4.cloud/x-oauth-app/api"
+   export X_AUTH_BROKER="https://<your-scope>.on.aux4.cloud/oauth-app-x/api"
    ```
 
    The client never sees the secret. Expired tokens are refreshed through the app automatically (X returns a refresh token when `offline.access` is requested).
@@ -35,7 +35,7 @@ It is a thin HTTP wrapper over [`aux4/oauth`](https://hub.aux4.io/r/public/packa
 You do not normally install this package locally — you deploy it. To inspect or run it locally:
 
 ```bash
-aux4 aux4 pkger install aux4/x-oauth-app
+aux4 aux4 pkger install aux4/oauth-app-x
 ```
 
 ## How it works
@@ -70,7 +70,7 @@ Until `X_CLIENT_ID` is set, the endpoints return an error.
 Query parameters: `redirectUri` (loopback, e.g. `http://localhost:9876/callback`), `scopes` (space separated; defaults to `X_SCOPES` then the bundled default), `state`.
 
 ```bash
-curl "https://<your-scope>.on.aux4.cloud/x-oauth-app/api/x/authorize-url?redirectUri=http://localhost:9876/callback"
+curl "https://<your-scope>.on.aux4.cloud/oauth-app-x/api/x/authorize-url?redirectUri=http://localhost:9876/callback"
 ```
 
 ```json
@@ -86,7 +86,7 @@ curl "https://<your-scope>.on.aux4.cloud/x-oauth-app/api/x/authorize-url?redirec
 JSON body: `code`, `codeVerifier`, `redirectUri`.
 
 ```bash
-curl -X POST "https://<your-scope>.on.aux4.cloud/x-oauth-app/api/x/exchange" \
+curl -X POST "https://<your-scope>.on.aux4.cloud/oauth-app-x/api/x/exchange" \
   -H "Content-Type: application/json" \
   -d '{"code":"...","codeVerifier":"b7f3...","redirectUri":"http://localhost:9876/callback"}'
 ```
@@ -106,7 +106,7 @@ curl -X POST "https://<your-scope>.on.aux4.cloud/x-oauth-app/api/x/exchange" \
 JSON body: `refreshToken`.
 
 ```bash
-curl -X POST "https://<your-scope>.on.aux4.cloud/x-oauth-app/api/x/refresh" \
+curl -X POST "https://<your-scope>.on.aux4.cloud/oauth-app-x/api/x/refresh" \
   -H "Content-Type: application/json" \
   -d '{"refreshToken":"..."}'
 ```

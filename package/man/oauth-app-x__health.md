@@ -7,7 +7,7 @@ It is served as `GET /health`. The api runtime passes the request context as fla
 #### Usage
 
 ```bash
-aux4 x-oauth-app health
+aux4 oauth-app-x health
 ```
 
 Served over HTTP as:
@@ -19,7 +19,7 @@ curl "https://<machine-url>/api/health"
 #### Example
 
 ```bash
-aux4 x-oauth-app health
+aux4 oauth-app-x health
 ```
 
 ```json

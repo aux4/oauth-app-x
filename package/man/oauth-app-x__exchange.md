@@ -11,7 +11,7 @@ The command prints the provider tokens and the resolved user profile as JSON.
 #### Usage
 
 ```bash
-aux4 x-oauth-app exchange --params '{"provider":"<provider>"}' --body '{"code":"<code>","codeVerifier":"<verifier>","redirectUri":"<uri>"}'
+aux4 oauth-app-x exchange --params '{"provider":"<provider>"}' --body '{"code":"<code>","codeVerifier":"<verifier>","redirectUri":"<uri>"}'
 ```
 
 --params  Path params as JSON — must include `provider` (e.g. `x`)
@@ -30,7 +30,7 @@ curl -X POST "https://<machine-url>/api/x/exchange" \
 #### Example
 
 ```bash
-aux4 x-oauth-app exchange --params '{"provider":"x"}' --body '{"code":"4/0Ab...","codeVerifier":"b7f3...","redirectUri":"http://127.0.0.1:9876/callback"}'
+aux4 oauth-app-x exchange --params '{"provider":"x"}' --body '{"code":"4/0Ab...","codeVerifier":"b7f3...","redirectUri":"http://127.0.0.1:9876/callback"}'
 ```
 
 ```json

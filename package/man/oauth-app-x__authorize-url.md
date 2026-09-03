@@ -15,7 +15,7 @@ The command prints a JSON object with:
 #### Usage
 
 ```bash
-aux4 x-oauth-app authorize-url --params '{"provider":"<provider>"}' --query '{"redirectUri":"<uri>","scopes":"<scopes>","state":"<state>"}'
+aux4 oauth-app-x authorize-url --params '{"provider":"<provider>"}' --query '{"redirectUri":"<uri>","scopes":"<scopes>","state":"<state>"}'
 ```
 
 --params  Path params as JSON — must include `provider` (e.g. `x`)
@@ -32,7 +32,7 @@ curl "https://<machine-url>/api/x/authorize-url?redirectUri=http://127.0.0.1:987
 #### Example
 
 ```bash
-aux4 x-oauth-app authorize-url --params '{"provider":"x"}' --query '{"redirectUri":"http://127.0.0.1:9876/callback","scopes":"tweet.read users.read","state":"xyz"}'
+aux4 oauth-app-x authorize-url --params '{"provider":"x"}' --query '{"redirectUri":"http://127.0.0.1:9876/callback","scopes":"tweet.read users.read","state":"xyz"}'
 ```
 
 ```json
