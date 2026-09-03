@@ -1,17 +1,23 @@
-# Google OAuth endpoint configuration for google-oauth-app.
+# X (Twitter) OAuth endpoint configuration for x-oauth-app.
 #
-# Credentials (clientId / clientSecret) are NOT stored here — they are supplied
-# per provider as machine environment variables (GOOGLE_CLIENT_ID /
-# GOOGLE_CLIENT_SECRET, and later X_CLIENT_ID, SLACK_CLIENT_ID, ...). This file
-# only holds the non-secret OAuth endpoints, passed to aux4/oauth via
+# Credentials (clientId / clientSecret) are NOT stored here — they are supplied as
+# the X_CLIENT_ID / X_CLIENT_SECRET machine environment variables. This file holds
+# only the non-secret OAuth endpoints + settings, passed to aux4/oauth via
 # --configFile.
 #
-# To add a provider: add its endpoints below, add <PROVIDER>_CLIENT_ID /
-# <PROVIDER>_CLIENT_SECRET env vars to the machine, and add a branch in the
-# oauth-broker authorize-url / exchange commands.
+# Notes for X:
+# - Use x.com / api.x.com (NOT twitter.com, which redirects and lowercases the
+#   query string, breaking client_id / code_challenge).
+# - Scopes are SPACE-separated. users.read is required for the /2/users/me profile
+#   lookup done during the code exchange; offline.access is required to receive a
+#   refresh token.
+# - clientSecretIn: basic — X confidential (Web App) clients authenticate at the
+#   token endpoint with HTTP Basic auth (client_secret_basic). A public (Native
+#   App) client has no secret, so this is simply ignored (PKCE only).
 config:
-  google:
-    authUrl: https://accounts.google.com/o/oauth2/v2/auth
-    tokenUrl: https://oauth2.googleapis.com/token
-    userinfoUrl: https://openidconnect.googleapis.com/v1/userinfo
-    scopes: openid email profile
+  x:
+    authUrl: https://x.com/i/oauth2/authorize
+    tokenUrl: https://api.x.com/2/oauth2/token
+    userinfoUrl: https://api.x.com/2/users/me
+    scopes: tweet.read users.read offline.access
+    clientSecretIn: basic

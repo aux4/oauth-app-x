@@ -1,8 +1,8 @@
 #### Description
 
-The `google-oauth-app` command groups the OAuth broker subcommands. The broker is a provider-agnostic OAuth service that holds each provider's application credentials (client id and secret) so that thin CLI clients never have to handle them.
+The `x-oauth-app` command groups the subcommands of a deployable X (Twitter) OAuth service. The service holds your X application credentials (client id and, for a confidential Web App, secret) so that thin CLI clients never have to handle them.
 
-It is a thin wrapper over `aux4/oauth` and is designed to run as an `api`-type machine on aux4.cloud. Its routes are served behind an API Gateway:
+It is a thin wrapper over `aux4/oauth`, pre-wired for X (x.com / api.x.com endpoints, space-separated scopes, HTTP Basic auth for confidential clients), and is designed to run as an `api`-type machine on aux4.cloud. Its routes are served behind an API Gateway:
 
 - `GET /health` — liveness check.
 - `GET /{provider}/authorize-url` — build the provider authorization URL server-side.
@@ -21,17 +21,17 @@ Subcommands:
 #### Usage
 
 ```bash
-aux4 google-oauth-app <subcommand>
+aux4 x-oauth-app <subcommand>
 ```
 
 #### Example
 
 ```bash
-aux4 google-oauth-app authorize-url --params '{"provider":"google"}' --query '{"redirectUri":"http://127.0.0.1:9876/callback"}'
+aux4 x-oauth-app authorize-url --params '{"provider":"x"}' --query '{"redirectUri":"http://127.0.0.1:9876/callback"}'
 ```
 
 Served over HTTP as:
 
 ```bash
-curl "https://<machine-url>/api/google/authorize-url?redirectUri=http://127.0.0.1:9876/callback"
+curl "https://<machine-url>/api/x/authorize-url?redirectUri=http://127.0.0.1:9876/callback"
 ```

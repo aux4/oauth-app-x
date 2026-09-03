@@ -1,140 +1,116 @@
-# aux4/google-oauth-app
+# aux4/x-oauth-app
 
-Deploy your **own Google OAuth service** in one click. It holds your Google OAuth client id and secret server-side and does the authorization-URL build, the code exchange, and the token refresh on behalf of your CLI tools — so those tools **never handle a client secret**, and every user authenticates under **your** Google project, quota, and consent screen.
+Deploy your **own X (Twitter) OAuth service** in one click. It holds your X OAuth client id and secret server-side and does the authorization-URL build, the code exchange, and the token refresh on behalf of your CLI tools — so those tools **never handle a client secret**, and every user authenticates under **your** X app, quota, and consent screen.
 
 It is a thin HTTP wrapper over [`aux4/oauth`](https://hub.aux4.io/r/public/packages/aux4/oauth), deployed as an `api`-type machine on [aux4.cloud](https://aux4.cloud). The package itself contains **no secrets** — your credentials are supplied as machine environment variables.
 
 ## Quick start
 
-1. **Deploy it.** From the [hub package page](https://hub.aux4.io/r/public/packages/aux4/google-oauth-app), click **Deploy to cloud** (or `aux4 aux4 cloud deploy google-oauth-app --package aux4/google-oauth-app --api true`). You get a URL like `https://<your-scope>.on.aux4.cloud/google-oauth-app`.
+1. **Deploy it.** From the [hub package page](https://hub.aux4.io/r/public/packages/aux4/x-oauth-app), click **Deploy to cloud** (or `aux4 aux4 cloud deploy x-oauth-app --package aux4/x-oauth-app --api true`). You get a URL like `https://<your-scope>.on.aux4.cloud/x-oauth-app`.
 
-2. **Add your Google credentials.** Create an OAuth client of type **Desktop app** in the [Google Cloud Console](https://console.cloud.google.com/) (Desktop is required so the CLI's `http://localhost:9876/callback` loopback redirect is accepted), then set them on the machine:
+2. **Create your X app.** In the [X developer portal](https://developer.x.com/), create an OAuth 2.0 app. Two client types work:
+   - **Web App (confidential)** — has a **client secret**; the app authenticates to X's token endpoint with HTTP Basic auth. Set both env vars below.
+   - **Native App (public)** — **no secret**, PKCE only. Set just `X_CLIENT_ID`.
+
+   Either way the app's **Callback URI must be exactly `http://localhost:9876/callback`** and the type/website filled in.
+
+3. **Add your credentials.**
 
    ```bash
-   aux4 aux4 cloud google-oauth-app env set GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=...
+   aux4 aux4 cloud x-oauth-app env set X_CLIENT_ID=... X_CLIENT_SECRET=...   # secret only for a Web App
    ```
 
    Values are encrypted at rest per scope and applied to the live machine immediately.
 
-3. **Point your CLI at it.** For [`community/google-auth`](https://hub.aux4.io/r/public/packages/community/google-auth):
+4. **Point your CLI at it.** A client asks the app for an authorization URL, sends the user through X's consent screen on a local loopback, and exchanges the code — for example:
 
    ```bash
-   export GOOGLE_AUTH_BROKER="https://<your-scope>.on.aux4.cloud/google-oauth-app/api"
-   aux4 google auth login
+   export X_AUTH_BROKER="https://<your-scope>.on.aux4.cloud/x-oauth-app/api"
    ```
 
-   Login opens a Google consent screen, catches the redirect on a local loopback, and stores the token — no client id or secret ever touches the user's machine. Expired tokens are refreshed through the app automatically.
+   The client never sees the secret. Expired tokens are refreshed through the app automatically (X returns a refresh token when `offline.access` is requested).
 
 ## Installation
 
 You do not normally install this package locally — you deploy it. To inspect or run it locally:
 
 ```bash
-aux4 aux4 pkger install aux4/google-oauth-app
+aux4 aux4 pkger install aux4/x-oauth-app
 ```
 
 ## How it works
 
-The service exposes a liveness check plus three Google endpoints, served under the `/api` prefix (for example `GET <machine-url>/api/health`):
+The service exposes a liveness check plus three X endpoints, served under the `/api` prefix (for example `GET <machine-url>/api/health`):
 
-1. `GET /health` — returns `{"status":"ok"}` so uptime probes can confirm the service is up.
-2. `GET /google/authorize-url` — returns the Google authorization URL, a PKCE `codeVerifier`, and the `state`. The client opens the URL in a browser and keeps the `codeVerifier`.
-3. `POST /google/exchange` — takes the authorization `code`, the `codeVerifier`, and the `redirectUri`, and returns the tokens plus the resolved user profile.
-4. `POST /google/refresh` — takes a `refreshToken` and returns a renewed set of tokens, so a client keeps a long-lived session alive without ever holding the client secret.
+1. `GET /health` — returns `{"status":"ok"}`.
+2. `GET /x/authorize-url` — returns the X authorization URL, a PKCE `codeVerifier`, and the `state`.
+3. `POST /x/exchange` — takes the authorization `code`, the `codeVerifier`, and the `redirectUri`, and returns the tokens plus the resolved profile.
+4. `POST /x/refresh` — takes a `refreshToken` and returns a renewed set of tokens.
 
-Your client id and secret live only on the machine (as encrypted environment variables) and never leave the cloud.
+**X specifics** (baked in so you don't have to rediscover them):
+
+- Endpoints use **`x.com` / `api.x.com`**, never `twitter.com` (which redirects and lowercases the query string, breaking `client_id` / `code_challenge`).
+- Scopes are **space-separated**. The default is `tweet.read users.read offline.access` — `users.read` is required for the `/2/users/me` profile lookup done during the exchange, and `offline.access` for a refresh token.
+- Confidential clients authenticate at the token endpoint with **HTTP Basic auth** (`clientSecretIn: basic`); public clients simply have no secret.
 
 ## Configuration
 
 | Environment variable | Required | Description |
 |----------------------|----------|-------------|
-| `GOOGLE_CLIENT_ID` | Yes | Google OAuth client id (Desktop app type) |
-| `GOOGLE_CLIENT_SECRET` | Yes | Google OAuth client secret |
-| `GOOGLE_SCOPES` | No | Default scopes (space or comma separated) used when a request does not specify any. Resolution is **request → `GOOGLE_SCOPES` → the bundled default** (`openid email profile`). Clients that compute their own scopes (like `google-auth`) override it. |
+| `X_CLIENT_ID` | Yes | X OAuth client id |
+| `X_CLIENT_SECRET` | For a Web App (confidential) client | X OAuth client secret. Omit for a Native App (public) client. |
+| `X_SCOPES` | No | Default scopes (space or comma separated) used when a request does not specify any. Resolution is **request → `X_SCOPES` → the bundled default** (`tweet.read users.read offline.access`). |
 
-Until `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` are set, the endpoints return an error.
+Until `X_CLIENT_ID` is set, the endpoints return an error.
 
 ## Endpoints
 
-### `GET /google/authorize-url`
+### `GET /x/authorize-url`
 
-Query parameters:
-
-| Parameter | Description |
-|-----------|-------------|
-| `redirectUri` | The client redirect URI Google will call back (for a CLI, a loopback URL such as `http://127.0.0.1:9876/callback`) |
-| `scopes` | Space or comma separated scopes. Defaults to `GOOGLE_SCOPES`, then the bundled default |
-| `state` | Opaque value round-tripped back to the client |
+Query parameters: `redirectUri` (loopback, e.g. `http://localhost:9876/callback`), `scopes` (space separated; defaults to `X_SCOPES` then the bundled default), `state`.
 
 ```bash
-curl "https://<your-scope>.on.aux4.cloud/google-oauth-app/api/google/authorize-url?redirectUri=http://127.0.0.1:9876/callback"
+curl "https://<your-scope>.on.aux4.cloud/x-oauth-app/api/x/authorize-url?redirectUri=http://localhost:9876/callback"
 ```
 
 ```json
 {
-  "url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=...&code_challenge=...",
+  "url": "https://x.com/i/oauth2/authorize?response_type=code&client_id=...&code_challenge=...",
   "codeVerifier": "b7f3...",
   "state": "..."
 }
 ```
 
-### `POST /google/exchange`
+### `POST /x/exchange`
 
-JSON body:
-
-| Field | Description |
-|-------|-------------|
-| `code` | The authorization code returned to the redirect URI |
-| `codeVerifier` | The PKCE verifier returned by `authorize-url` |
-| `redirectUri` | The same redirect URI used to obtain the code |
+JSON body: `code`, `codeVerifier`, `redirectUri`.
 
 ```bash
-curl -X POST "https://<your-scope>.on.aux4.cloud/google-oauth-app/api/google/exchange" \
+curl -X POST "https://<your-scope>.on.aux4.cloud/x-oauth-app/api/x/exchange" \
   -H "Content-Type: application/json" \
-  -d '{"code":"4/0Ab...","codeVerifier":"b7f3...","redirectUri":"http://127.0.0.1:9876/callback"}'
+  -d '{"code":"...","codeVerifier":"b7f3...","redirectUri":"http://localhost:9876/callback"}'
 ```
 
 ```json
 {
-  "accessToken": "ya29...",
-  "refreshToken": "1//0g...",
-  "idToken": "eyJ...",
-  "expiresIn": 3599,
-  "tokenType": "Bearer",
-  "principal": {
-    "sub": "1234567890",
-    "email": "user@example.com",
-    "provider": "google"
-  }
+  "accessToken": "...",
+  "refreshToken": "...",
+  "expiresIn": 7200,
+  "tokenType": "bearer",
+  "principal": { "data": { "id": "12", "name": "...", "username": "..." }, "provider": "x" }
 }
 ```
 
-### `POST /google/refresh`
+### `POST /x/refresh`
 
-JSON body:
-
-| Field | Description |
-|-------|-------------|
-| `refreshToken` | The refresh token returned by `exchange` |
+JSON body: `refreshToken`.
 
 ```bash
-curl -X POST "https://<your-scope>.on.aux4.cloud/google-oauth-app/api/google/refresh" \
+curl -X POST "https://<your-scope>.on.aux4.cloud/x-oauth-app/api/x/refresh" \
   -H "Content-Type: application/json" \
-  -d '{"refreshToken":"1//0g..."}'
+  -d '{"refreshToken":"..."}'
 ```
-
-```json
-{
-  "accessToken": "ya29...",
-  "refreshToken": "1//0g...",
-  "idToken": "",
-  "expiresIn": 3599,
-  "tokenType": "Bearer"
-}
-```
-
-When Google does not rotate the refresh token, `refreshToken` comes back empty and the client keeps the one it already has.
 
 ## Security
 
-These endpoints are **unauthenticated**: anything that can reach the URL can start an OAuth flow with your Google client. That is by design for a loopback CLI login, but it means you should treat the deployment URL as semi-sensitive, register only the redirect URIs your clients actually use, and keep `GOOGLE_SCOPES` scoped to what you need. A scope allowlist (rejecting requests for scopes beyond a configured set) is a planned addition.
+These endpoints are **unauthenticated**: anything that can reach the URL can start an OAuth flow with your X app. That is by design for a loopback CLI login, but treat the deployment URL as semi-sensitive, register only the callback URI your clients use, and keep `X_SCOPES` scoped to what you need. A scope allowlist is a planned addition.

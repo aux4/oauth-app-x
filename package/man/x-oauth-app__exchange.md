@@ -4,25 +4,25 @@ The `exchange` command exchanges an authorization code for provider tokens on th
 
 It is served as `POST /{provider}/exchange`. The api runtime passes the request context as flags: the path params (`{provider}`) on `--params` and the JSON request body on `--body`. The command reads `${params.provider}`, `${body.code}`, `${body.codeVerifier}`, and `${body.redirectUri}`.
 
-The provider's client id and secret are read from per-provider environment variables by convention `<PROVIDER>_CLIENT_ID` / `<PROVIDER>_CLIENT_SECRET` (for example `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`). If the provider is unknown or its credentials are not configured, the command exits with an error.
+The provider's client id and secret are read from per-provider environment variables by convention `<PROVIDER>_CLIENT_ID` / `<PROVIDER>_CLIENT_SECRET` (for example `X_CLIENT_ID` / `X_CLIENT_SECRET`). If the provider is unknown or its credentials are not configured, the command exits with an error.
 
 The command prints the provider tokens and the resolved user profile as JSON.
 
 #### Usage
 
 ```bash
-aux4 google-oauth-app exchange --params '{"provider":"<provider>"}' --body '{"code":"<code>","codeVerifier":"<verifier>","redirectUri":"<uri>"}'
+aux4 x-oauth-app exchange --params '{"provider":"<provider>"}' --body '{"code":"<code>","codeVerifier":"<verifier>","redirectUri":"<uri>"}'
 ```
 
---params  Path params as JSON — must include `provider` (e.g. `google`)
+--params  Path params as JSON — must include `provider` (e.g. `x`)
 --body    Request body as JSON — `code` (required), `codeVerifier` (PKCE verifier from `authorize-url`), `redirectUri`
 
-The Google client id and secret are read from the `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` environment variables.
+The X client id and secret are read from the `X_CLIENT_ID` / `X_CLIENT_SECRET` environment variables.
 
 Served over HTTP as:
 
 ```bash
-curl -X POST "https://<machine-url>/api/google/exchange" \
+curl -X POST "https://<machine-url>/api/x/exchange" \
   -H 'Content-Type: application/json' \
   -d '{"code":"4/0Ab...","codeVerifier":"b7f3...","redirectUri":"http://127.0.0.1:9876/callback"}'
 ```
@@ -30,7 +30,7 @@ curl -X POST "https://<machine-url>/api/google/exchange" \
 #### Example
 
 ```bash
-aux4 google-oauth-app exchange --params '{"provider":"google"}' --body '{"code":"4/0Ab...","codeVerifier":"b7f3...","redirectUri":"http://127.0.0.1:9876/callback"}'
+aux4 x-oauth-app exchange --params '{"provider":"x"}' --body '{"code":"4/0Ab...","codeVerifier":"b7f3...","redirectUri":"http://127.0.0.1:9876/callback"}'
 ```
 
 ```json
