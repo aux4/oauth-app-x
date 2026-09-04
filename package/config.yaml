@@ -7,6 +7,11 @@ config:
   api:
     "GET /x/authorize-url":
       command: aux4 oauth-app x authorize-url
+    # Redirect landing point for X. Register <machine-url>/api/x/callback as the
+    # redirect URI on the X app. Delegates to the shared core handler, which parks
+    # the code by session id for the polling CLI.
+    "GET /x/callback":
+      command: aux4 oauth-app callback
     "POST /x/exchange":
       command: aux4 oauth-app x exchange
     "POST /x/refresh":

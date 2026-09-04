@@ -1,7 +1,10 @@
-# aux4/oauth-app-x
+# aux4/oauth-app-x 0.0.5
 
-Restructured into a PLUGIN of the aux4/oauth-app core (was a standalone app). It
-now depends on aux4/oauth-app, adds the `x` command under the shared `oauth-app`
-profile (aux4 oauth-app x ...), and contributes the /x/* routes. The core provides
-/health and the shared api/oauth machinery. Set X_CLIENT_ID / X_CLIENT_SECRET
-(+ optional X_SCOPES); confidential clients use HTTP Basic auth (clientSecretIn: basic).
+## Changed
+
+- **Hosted-callback + poll flow.** `authorize-url`/`exchange` now redirect to the broker's own HTTPS callback (`<base>/api/x/callback`) instead of a localhost loopback — works from **any device**, and satisfies X's confidential-client rule (X rejects `localhost` redirects for confidential/Web App clients). Adds the `GET /x/callback` route (owned by this plugin, handled by the core).
+- **Zero-config URL on aux4.cloud.** The redirect base resolves as `nvl(BROKER_PUBLIC_URL, AUX4_CLOUD_VM_URL)`: an aux4.cloud machine self-configures; `BROKER_PUBLIC_URL` remains an override for self-hosters (base only, no `/api`).
+
+## Notes
+
+- Requires `aux4/oauth-app` ≥ 0.0.4. The X app must be **Web App (confidential)** with **Read and write** permissions and `<base>/api/x/callback` registered as a Callback URI.
