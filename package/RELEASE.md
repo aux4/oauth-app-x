@@ -1,6 +1,7 @@
 # aux4/oauth-app-x
 
-Renamed from `aux4/x-oauth-app` into the `oauth-app*` family (alongside
-`aux4/oauth-app-google` and the combined `aux4/oauth-app`). Same package: a public,
-one-click-deployable X (Twitter) OAuth service. Set `X_CLIENT_ID` /
-`X_CLIENT_SECRET` (+ optional `X_SCOPES`) and point your CLI at it.
+Restructured into a PLUGIN of the aux4/oauth-app core (was a standalone app). It
+now depends on aux4/oauth-app, adds the `x` command under the shared `oauth-app`
+profile (aux4 oauth-app x ...), and contributes the /x/* routes. The core provides
+/health and the shared api/oauth machinery. Set X_CLIENT_ID / X_CLIENT_SECRET
+(+ optional X_SCOPES); confidential clients use HTTP Basic auth (clientSecretIn: basic).

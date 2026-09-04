@@ -2,19 +2,18 @@
   "scope": "aux4",
   "name": "oauth-app-x",
   "version": "0.0.3",
-  "description": "Deploy your own X (Twitter) OAuth service in one click: it holds your X client id/secret so your CLI tools never have to.",
+  "description": "X (Twitter) OAuth provider plugin for the aux4/oauth-app core. Adds the x provider and its /x/* routes.",
   "license": "MIT",
   "tags": [
     "oauth",
-    "google",
+    "x",
+    "twitter",
     "auth",
     "cloud",
-    "broker"
+    "plugin"
   ],
   "dependencies": [
-    "aux4/api",
-    "aux4/oauth",
-    "aux4/config"
+    "aux4/oauth-app"
   ],
   "system": [
     [
@@ -25,68 +24,39 @@
   ],
   "profiles": [
     {
-      "name": "main",
+      "name": "oauth-app",
       "commands": [
         {
-          "name": "oauth-app-x",
+          "name": "x",
           "execute": [
-            "profile:oauth-app-x"
+            "profile:oauth-app:x"
           ],
           "help": {
-            "text": "X OAuth app commands"
+            "text": "X (Twitter) OAuth provider"
           }
         }
       ]
     },
     {
-      "name": "oauth-app-x",
+      "name": "oauth-app:x",
       "commands": [
-        {
-          "name": "health",
-          "execute": [
-            "echo '{\"status\":\"ok\"}'"
-          ],
-          "help": {
-            "text": "Liveness check",
-            "variables": [
-              {
-                "name": "params",
-                "text": "Path params (from the api runtime)",
-                "default": "{}"
-              },
-              {
-                "name": "query",
-                "text": "Query params (from the api runtime)",
-                "default": "{}"
-              },
-              {
-                "name": "body",
-                "text": "Request body (from the api runtime)",
-                "default": "{}"
-              }
-            ]
-          }
-        },
         {
           "name": "authorize-url",
           "execute": [
-            "set:provider=${params.provider}",
             "set:redirectUri=${query.redirectUri}",
             "set:scopes=${query.scopes}",
             "set:scopes=nvl(scopes, xScopes)",
             "set:state=${query.state}",
-            "if(provider==) && echo \"Error: provider is required\" 1>&2 && exit 1 || true",
-            "if(provider!=x) && echo \"Error: provider value(provider) is not configured\" 1>&2 && exit 1 || true",
             "set:clientId=${xClientId}",
-            "if(clientId==) && echo \"Error: provider value(provider) has no client credentials configured\" 1>&2 && exit 1 || true",
-            "aux4 oauth authorize-url --provider value(provider) --clientId value(clientId) param(redirectUri) param(scopes) param(state) --configFile ${packageDir}/providers.yaml"
+            "if(clientId==) && echo \"Error: x has no client credentials configured\" 1>&2 && exit 1 || true",
+            "aux4 oauth authorize-url --provider x --clientId value(clientId) param(redirectUri) param(scopes) param(state) --configFile ${packageDir}/providers.yaml"
           ],
           "help": {
-            "text": "Build the provider authorization URL (server-side, credentials held by this app)",
+            "text": "Build the X authorization URL (server-side; credentials held by this app)",
             "variables": [
               {
                 "name": "params",
-                "text": "Path params — {provider}",
+                "text": "Path params (from the api runtime)",
                 "default": "{}"
               },
               {
@@ -113,7 +83,7 @@
               },
               {
                 "name": "xScopes",
-                "text": "Default scopes (space or comma separated) used when the request does not specify any; falls back to the bundled Google default",
+                "text": "Default scopes when the request omits them; falls back to the bundled default",
                 "env": "X_SCOPES",
                 "default": ""
               }
@@ -123,23 +93,20 @@
         {
           "name": "exchange",
           "execute": [
-            "set:provider=${params.provider}",
             "set:code=${body.code}",
             "set:codeVerifier=${body.codeVerifier}",
             "set:redirectUri=${body.redirectUri}",
-            "if(provider==) && echo \"Error: provider is required\" 1>&2 && exit 1 || true",
-            "if(provider!=x) && echo \"Error: provider value(provider) is not configured\" 1>&2 && exit 1 || true",
             "set:clientId=${xClientId}",
             "set:clientSecret=${xClientSecret}",
-            "if(clientId==) && echo \"Error: provider value(provider) has no client credentials configured\" 1>&2 && exit 1 || true",
-            "aux4 oauth exchange --provider value(provider) --clientId value(clientId) --clientSecret value(clientSecret) param(code) param(codeVerifier) param(redirectUri) --includeTokens true --configFile ${packageDir}/providers.yaml"
+            "if(clientId==) && echo \"Error: x has no client credentials configured\" 1>&2 && exit 1 || true",
+            "aux4 oauth exchange --provider x --clientId value(clientId) --clientSecret value(clientSecret) param(code) param(codeVerifier) param(redirectUri) --includeTokens true --configFile ${packageDir}/providers.yaml"
           ],
           "help": {
-            "text": "Exchange an authorization code for tokens (server-side, credentials held by this app)",
+            "text": "Exchange an authorization code for tokens (server-side; credentials held by this app)",
             "variables": [
               {
                 "name": "params",
-                "text": "Path params — {provider}",
+                "text": "Path params (from the api runtime)",
                 "default": "{}"
               },
               {
@@ -170,22 +137,19 @@
         {
           "name": "refresh",
           "execute": [
-            "set:provider=${params.provider}",
             "set:refreshToken=${body.refreshToken}",
-            "if(provider==) && echo \"Error: provider is required\" 1>&2 && exit 1 || true",
-            "if(provider!=x) && echo \"Error: provider value(provider) is not configured\" 1>&2 && exit 1 || true",
-            "if(refreshToken==) && echo \"Error: refreshToken is required\" 1>&2 && exit 1 || true",
             "set:clientId=${xClientId}",
             "set:clientSecret=${xClientSecret}",
-            "if(clientId==) && echo \"Error: provider value(provider) has no client credentials configured\" 1>&2 && exit 1 || true",
-            "aux4 oauth refresh --provider value(provider) --clientId value(clientId) --clientSecret value(clientSecret) param(refreshToken) --configFile ${packageDir}/providers.yaml"
+            "if(refreshToken==) && echo \"Error: refreshToken is required\" 1>&2 && exit 1 || true",
+            "if(clientId==) && echo \"Error: x has no client credentials configured\" 1>&2 && exit 1 || true",
+            "aux4 oauth refresh --provider x --clientId value(clientId) --clientSecret value(clientSecret) param(refreshToken) --configFile ${packageDir}/providers.yaml"
           ],
           "help": {
-            "text": "Renew an access token from a refresh token (server-side, credentials held by this app)",
+            "text": "Renew an access token from a refresh token (server-side; credentials held by this app)",
             "variables": [
               {
                 "name": "params",
-                "text": "Path params — {provider}",
+                "text": "Path params (from the api runtime)",
                 "default": "{}"
               },
               {
