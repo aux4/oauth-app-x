@@ -1,7 +1,7 @@
 {
   "scope": "aux4",
   "name": "oauth-app-x",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "X (Twitter) OAuth provider plugin for the aux4/oauth-app core. Adds the x provider and its /x/* routes.",
   "license": "MIT",
   "tags": [
