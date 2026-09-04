@@ -35,9 +35,14 @@ Installing the plugin pulls the `aux4/oauth-app` core (which provides `/health` 
 
 Served under the `/api` prefix on the deployed machine:
 
-- `GET /x/authorize-url` — build the X authorization URL.
-- `POST /x/exchange` — exchange an authorization code for tokens.
-- `POST /x/refresh` — renew an access token from a refresh token.
+- `GET /x/authorize-url` — build the X authorization URL. **Gated** by the endpoint auth.
+- `GET /x/callback` — the browser redirect landing point (delegates to the core `callback` handler). **Public** — the provider redirect carries no aux4 token. Register `<machine-url>/api/x/callback` as the redirect URI on the X app.
+- `POST /x/exchange` — exchange an authorization code for tokens. **Gated**.
+- `POST /x/refresh` — renew an access token from a refresh token. **Public but rate-limited** (the refresh token is itself the credential).
+
+## Security
+
+The broker is **secure by default**: `authorize-url` and `exchange` require a valid aux4 idToken whose owner is entitled to the machine's scope, enforced by the core's endpoint-auth gate (see [`aux4/oauth-app` › Endpoint authentication](https://hub.aux4.io/r/public/packages/aux4/oauth-app)). `callback` is public and `refresh` is public but rate-limited. Set `OAUTH_APP_PUBLIC=true` on the machine to run it fully public.
 
 ## X specifics
 
