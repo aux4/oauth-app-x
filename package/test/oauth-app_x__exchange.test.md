@@ -2,12 +2,23 @@
 
 `aux4 oauth-app x exchange` swaps an authorization code for tokens (the api runtime
 passes the JSON body on `--body`; the command reads `${body.code}` /
-`${body.codeVerifier}` / `${body.redirectUri}`).
+`${body.codeVerifier}`). The redirect URI is fixed to the broker's own callback
+(`<base>/api/x/callback`) so it matches the one used at authorize.
+
+## when the broker public url is not set
+
+```execute
+X_CLIENT_ID=cid X_CLIENT_SECRET=sec aux4 oauth-app x exchange --body '{"code":"abc","codeVerifier":"def"}'
+```
+
+```error:partial
+public URL is not set
+```
 
 ## when there are no credentials
 
 ```execute
-X_CLIENT_ID= X_CLIENT_SECRET= aux4 oauth-app x exchange --body '{"code":"abc","codeVerifier":"def","redirectUri":"http://127.0.0.1:9876/callback"}'
+BROKER_PUBLIC_URL=https://broker.test/oauth-broker X_CLIENT_ID= X_CLIENT_SECRET= aux4 oauth-app x exchange --body '{"code":"abc","codeVerifier":"def"}'
 ```
 
 ```error:partial
