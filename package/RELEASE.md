@@ -1,10 +1,10 @@
-# aux4/oauth-app-x 0.0.6
+# aux4/oauth-app-x 0.0.7
 
-## Changed
+## Fixed
 
-- **Endpoint auth alignment with the secure-by-default core.** `/x/callback` and
-  `/x/refresh` are marked `public: true` (the browser redirect must reach the
-  callback without a token, and a refresh token is itself the credential), so they
-  stay open. `/x/authorize-url` and `/x/exchange` inherit the core's
-  secure-by-default gate — a caller must present a valid aux4 idToken unless the VM
-  runs with `OAUTH_APP_PUBLIC=true`.
+- **X code exchange failed on a multi-package broker** with `no tokenUrl for
+  provider 'x'`. The authorize-url, exchange and refresh commands now pass X's
+  endpoints (`--authUrl` / `--tokenUrl` / `--userinfoUrl`) and `--clientSecretIn
+  basic` explicitly, in addition to `--configFile providers.yaml`. Explicit flags
+  take precedence, so the token operations no longer depend on the `providers.yaml`
+  resolving on the deployed VM.

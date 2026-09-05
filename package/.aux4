@@ -51,7 +51,7 @@
             "set:clientId=${xClientId}",
             "if(base==) && echo \"Error: this broker's public URL is not set — provide BROKER_PUBLIC_URL, or deploy on aux4.cloud which injects AUX4_CLOUD_VM_URL\" 1>&2 && exit 1 || if(base!=) && true",
             "if(clientId==) && echo \"Error: x has no client credentials configured\" 1>&2 && exit 1 || true",
-            "aux4 oauth authorize-url --provider x --clientId value(clientId) param(redirectUri) param(scopes) param(state) --configFile ${packageDir}/providers.yaml"
+            "aux4 oauth authorize-url --provider x --clientId value(clientId) param(redirectUri) param(scopes) param(state) --authUrl https://x.com/i/oauth2/authorize --configFile ${packageDir}/providers.yaml"
           ],
           "help": {
             "text": "Build the X authorization URL (server-side; credentials held by this app)",
@@ -115,7 +115,7 @@
             "set:clientSecret=${xClientSecret}",
             "if(base==) && echo \"Error: this broker's public URL is not set — provide BROKER_PUBLIC_URL, or deploy on aux4.cloud which injects AUX4_CLOUD_VM_URL\" 1>&2 && exit 1 || if(base!=) && true",
             "if(clientId==) && echo \"Error: x has no client credentials configured\" 1>&2 && exit 1 || true",
-            "aux4 oauth exchange --provider x --clientId value(clientId) --clientSecret value(clientSecret) param(code) param(codeVerifier) param(redirectUri) --includeTokens true --configFile ${packageDir}/providers.yaml"
+            "aux4 oauth exchange --provider x --clientId value(clientId) --clientSecret value(clientSecret) param(code) param(codeVerifier) param(redirectUri) --includeTokens true --tokenUrl https://api.x.com/2/oauth2/token --userinfoUrl https://api.x.com/2/users/me --clientSecretIn basic --configFile ${packageDir}/providers.yaml"
           ],
           "help": {
             "text": "Exchange an authorization code for tokens (server-side; credentials held by this app)",
@@ -170,7 +170,7 @@
             "set:clientSecret=${xClientSecret}",
             "if(refreshToken==) && echo \"Error: refreshToken is required\" 1>&2 && exit 1 || true",
             "if(clientId==) && echo \"Error: x has no client credentials configured\" 1>&2 && exit 1 || true",
-            "aux4 oauth refresh --provider x --clientId value(clientId) --clientSecret value(clientSecret) param(refreshToken) --configFile ${packageDir}/providers.yaml"
+            "aux4 oauth refresh --provider x --clientId value(clientId) --clientSecret value(clientSecret) param(refreshToken) --tokenUrl https://api.x.com/2/oauth2/token --clientSecretIn basic --configFile ${packageDir}/providers.yaml"
           ],
           "help": {
             "text": "Renew an access token from a refresh token (server-side; credentials held by this app)",
